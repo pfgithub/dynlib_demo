@@ -15,6 +15,12 @@ pub fn loadLibrary(name: []const u8, comptime Container: type) !Container {
 }
 
 pub fn main() !void {
-    const lbry = try loadLibrary("libdl.so.0.0.0", Library);
+    const libname = switch (std.builtin.os.tag) {
+        .linux => "out/linux/libdl.so.0.0.0",
+        .windows => "out/windows/dl.dll",
+        .macosx => "out/mac/libdl.0.0.0.dylib",
+        else => @compileError("Unsupported platform " ++ @tagName(std.os.tag)),
+    };
+    const lbry = try loadLibrary(libname, Library);
     std.debug.print("Added is {}\n", .{lbry.add(1, 2)});
 }
